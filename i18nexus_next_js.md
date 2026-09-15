@@ -1,6 +1,6 @@
 # سجل المحادثة الكامل: إعداد وتكامل i18nexus مع Next.js (سؤال وجواب)
 
-توثيق شامل لكامل جلسة العمل والمحادثة سؤالاً بإجابة، موضحاً المفاهيم، الأكواد، وسيناريوهات استكشاف الأخطاء وإصلاحها (Troubleshooting) حتى تشغيل التدويل بالكامل بنجاح.
+توثيق شامل لكامل جلسة العمل والمحادثة سؤالاً بإجابة، موضحاً المفاهيم، الأكواد، واستكشاف الأخطاء وإصلاحها (Troubleshooting) على كل من خادم وسيرفر Next.js App Router (Server & Client Components) وتكامل التدويل وتغيير اللغات.
 
 ---
 
@@ -11,16 +11,16 @@
 #### الإجابة:
 في مكان `I18NEXUS_PAT` تضع **Personal Access Token** الخاص بحسابك على منصة i18nexus، وليس مفتاح المشروع.
 
-**خطوات استخراجه من حسابك:**
+**خطوات استخراجه:**
 1. ادخل إلى حسابك في موقع [i18nexus.com](https://i18nexus.com).
-2. اضغط على صورتك الشخصية أو اسمك أعلى يمين الشاشة للدخول إلى **Profile Settings** أو **Account Settings**.
+2. اضغط على صورة ملفك أو اسمك للدخول إلى **Profile Settings** أو **Account Settings**.
 3. ابحث عن قسم **Personal Access Tokens** أو **API Tokens**.
-4. اضغط على **Generate New Token** (أو Create Token).
-5. انسخ الرمز الناتج وضعه مكان `"your_personal_access_token"`.
+4. اضغط على **Generate New Token**.
+5. انسخ الرمز وضعه مكان `"your_personal_access_token"`.
 
-**الفرق بين المتغيرين:**
-* **`I18NEXUS_API_KEY`**: مفتاح خاص بالمشروع نفسه (Project API Key) ليحدد أي مشروع يتم سحب أو رفع الترجمات منه.
-* **`I18NEXUS_PAT`**: رمز تحقق خاص بحسابك الشخصي يُستخدم غالباً عند تنفيذ أوامر الـ CLI (مثل سحب ملفات الترجمة تلقائياً أو مزامنتها عبر سطر الأوامر).
+**الفرق بينهما:**
+* **`I18NEXUS_API_KEY`**: مفتاح خاص بالمشروع نفسه لتحديد أي مشروع يتم مزامنة ملفاته.
+* **`I18NEXUS_PAT`**: رمز تحقق لحسابك الشخصي يُستخدم غالباً عند تنفيذ أوامر الـ CLI.
 
 ---
 
@@ -28,12 +28,11 @@
 > **`I18NEXUS_API_KEY` اجيبه منين؟**
 
 #### الإجابة:
-الـ **API Key** الخاص بالمشروع يُستخرج من داخل إعدادات المشروع نفسه:
-1. افتح موقع [i18nexus.com](https://i18nexus.com) وسجّل الدخول.
-2. ادخل إلى **المشروع** المطلوب من لوحة التحكم (Dashboard).
-3. اضغط على **Settings** (أيقونة الترس ⚙️) الخاصة بالمشروع.
-4. انتقل إلى قسم **API & CLI** أو **General Settings**.
-5. ستجد حقل **Project API Key**، اضغط على زر **Copy** وانسخه إلى ملف بيئة العمل `.env`.
+يُستخرج من داخل إعدادات المشروع نفسه:
+1. ادخل إلى المشروع المطلوب من لوحة التحكم (Dashboard).
+2. اضغط على **Settings** (⚙️).
+3. انتقل إلى قسم **API & CLI** أو **General Settings**.
+4. انسخ القيمة الموجودة في حقل **Project API Key** إلى ملف البيئة `.env`.
 
 ---
 
@@ -41,53 +40,24 @@
 > **ازاي اعمل مشروع ب i18؟**
 
 #### الإجابة:
-خطوات إنشاء وربط مشروع يعتمد على `i18nexus` مع مكتبة التدويل `i18next`:
-
-1. **إنشاء المشروع على المنصة:**
-   * أنشئ حساباً وادخل على i18nexus واضغط **Create Project**.
-   * حدد اللغة الأساسية (مثل الإنجليزية أو العربية) واللغات المستهدفة.
-   * انسخ مفتاح المشروع `Project API Key` من الإعدادات.
-
+1. **إنشاء المشروع على المنصة:** إنشاء مشروع واختيار اللغة الأساسية واللغات المستهدفة ونسخ الـ API Key.
 2. **تثبيت أداة الـ CLI وسحب الملفات:**
    ```bash
    npm install -g i18nexus-cli
    ```
-   أنشئ ملف `.env` في المسار الرئيسي:
+   في ملف `.env`:
    ```env
    I18NEXUS_API_KEY="your_api_key_here"
    ```
-   ثم شغّل أمر السحب:
+   أمر التنزيل:
    ```bash
    i18nexus pull
    ```
-   *تقوم الأداة بتنزيل ملفات الـ JSON داخل مجلد `public/locales`.*
-
-3. **إعداد واستخدام مكتبة الترجمة (نموذج React التقليدي):**
+3. **تهيئة مكتبة التدويل (نموذج React التقليدي):**
    ```bash
    npm install i18next react-i18next i18next-http-backend
    ```
-   إنشاء ملف تهيئة `i18n.js`:
-   ```javascript
-   import i18n from 'i18next';
-   import { initReactI18next } from 'react-i18next';
-   import HttpBackend from 'i18next-http-backend';
-
-   i18n
-     .use(HttpBackend)
-     .use(initReactI18next)
-     .init({
-       fallbackLng: 'en',
-       lng: 'en',
-       backend: {
-         loadPath: '/locales/{{lng}}/{{ns}}.json',
-       },
-       interpolation: {
-         escapeValue: false,
-       },
-     });
-
-   export default i18n;
-   ```
+   إنشاء ملف `i18n.js` واستدعاء `useTranslation` داخل المكونات.
 
 ---
 
@@ -95,33 +65,11 @@
 > **i18n.js في root؟ و بعدين؟**
 
 #### الإجابة:
-مكانه الأفضل والأنظم يكون داخل مجلد **`src/`** (مثلاً: `src/i18n.js`) أو في الـ `root`. الخطوات التالية بعد إنشائه:
-
-1. **استيراد الملف في نقطة البداية (Entry Point):**
-   * في React (Vite): أضف `import './i18n';` في أعلى ملف `src/main.jsx`.
-   * في React (CRA): أضف `import './i18n';` في أعلى ملف `src/index.js`.
-2. **التأكد من مسار الملفات:**
-   التأكد من أن ملفات الـ JSON موجودة داخل مسار متاح للتحميل عبر الويب مثل:
-   ```text
-   public/locales/en/default.json
-   public/locales/ar/default.json
-   ```
-3. **استخدام الترجمة داخل المكونات:**
-   استيراد واستخدام `useTranslation` وتغيير اللغة:
-   ```jsx
-   import { useTranslation } from 'react-i18next';
-
-   function App() {
-     const { t, i18n } = useTranslation();
-     return (
-       <div>
-         <h1>{t('welcome_message')}</h1>
-         <button onClick={() => { i18n.changeLanguage('ar'); document.dir = 'rtl'; }}>العربية</button>
-         <button onClick={() => { i18n.changeLanguage('en'); document.dir = 'ltr'; }}>English</button>
-       </div>
-     );
-   }
-   ```
+المكان الأفضل داخل `src/i18n.js` أو في الـ `root`.
+الخطوات التالية:
+1. **استيراده في Entry Point:** إضافة `import './i18n';` في أعلى ملف `src/main.jsx` أو `src/index.js`.
+2. **التأكد من مسار الـ JSON:** وجود الملفات داخل المسار العام `public/locales/{lng}/{ns}.json`.
+3. **الاستخدام بالمكونات:** استخدام `useTranslation` واستدعاء `i18n.changeLanguage('ar')`.
 
 ---
 
@@ -129,10 +77,8 @@
 > **بستخدم NEXTJS**
 
 #### الإجابة:
-في **Next.js (App Router)**، يختلف الأمر عن React التقليدي لأن Next.js يعتمد الرندرة بالسيرفر (SSR / Server Components).
-
-**الخطوات المعيارية لـ Next.js App Router:**
-1. **تثبيت الحزم اللازمة:**
+Next.js يعتمد على الرندرة بالسيرفر (SSR / Server Components)، لذا يختلف الإعداد:
+1. **تثبيت الحزم المناسبة:**
    ```bash
    npm install i18next react-i18next i18next-resources-to-backend
    ```
@@ -153,30 +99,20 @@
      };
    }
    ```
-3. **محرك السيرفر `src/app/i18n/index.js`:**
-   تهيئة مكتبة i18next للتعامل مع مكونات السيرفر.
-4. **هيكلة مسارات Next.js الديناميكية:**
-   وضع المسار الأساسي داخل مجلد `src/app/[lng]/page.jsx` و `src/app/[lng]/layout.jsx`.
+3. **محرك السيرفر `src/app/i18n/index.js`** لتهيئة الترجمة على الخادم.
+4. **هيكلة المسارات:** وضع الصفحات داخل المجلد الديناميكي `src/app/[lng]/page.jsx`.
 
 ---
 
 ### س6:
-> *(إرسال لقطة شاشة توضح خطأ في الكود)*  
-> **`React Hook "useTranslation" cannot be called in an async function.` في ملف `page.jsx`**
+> **خطأ: `React Hook "useTranslation" cannot be called in an async function.` في `page.jsx`**
 
 #### الإجابة:
-* **سبب الخطأ:** محرك قواعد React / ESLint يمنع تسمية أو استدعاء الدوال التي تبدأ بـ `use` (Hooks) داخل دوال غير متزامنة (`async function`).
-* **الحل الجذري:**
-  1. إعادة تسمية الدالة المخصصة في `src/app/i18n/index.js` من `useTranslation` إلى `getTranslation`.
-  2. في صفحة `page.jsx`، استيراد واستدعاء الاسم الجديد:
-     ```jsx
-     import { getTranslation } from '../i18n';
-
-     export default async function HomePage({ params: { lng } }) {
-       const { t } = await getTranslation(lng, 'common');
-       // ...
-     }
-     ```
+* **السبب:** قواعد React و ESLint تمنع تسمية أو استدعاء دوال تبدأ بـ `use` (Hooks) داخل دوال غير متزامنة (`async function`).
+* **الحل:** إعادة تسمية الدالة المخصصة في `src/app/i18n/index.js` من `useTranslation` إلى `getTranslation` واستدعاؤها كدالة عادية:
+  ```javascript
+  const { t } = await getTranslation(lng, 'common');
+  ```
 
 ---
 
@@ -184,17 +120,12 @@
 > **بعدين هل فيه middleware بيوجهني للغة معينة؟**
 
 #### الإجابة:
-نعم، الـ **Middleware** هو المسؤول الأساسي في Next.js عن:
-1. فحص مسار الرابط (Pathname) والتأكد هل يحتوي على لغة مدعومة أم لا.
-2. فحص تفضيل لغة المستخدم عبر (Cookies) ثم رأس لغة المتصفح (`Accept-Language`).
-3. توجيه الزائر تلقائياً (Redirect) إلى الرابط المناسب مثل `/ar` أو `/en`.
-
-**طريقة الإعداد:**
-1. تثبيت مكتبة فحص لغة الطلب:
+نعم، الـ **Middleware** يفحص الرابط والكوكي و`Accept-Language` ويوجه الزائر تلقائياً (Redirect):
+1. تثبيت الحزمة:
    ```bash
    npm install accept-language
    ```
-2. إنشاء ملف الـ Middleware:
+2. إنشاء `src/middleware.js`:
    ```javascript
    import { NextResponse } from 'next/server';
    import acceptLanguage from 'accept-language';
@@ -203,7 +134,7 @@
    acceptLanguage.languages(languages);
 
    export const config = {
-     matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)'],
+     matcher: ['/((?!api|_next/static|_next/image|assets|images|favicon.ico|.*\\..*).*)'],
    };
 
    export function middleware(req) {
@@ -231,52 +162,46 @@
 ---
 
 ### س8:
-> **Build Error**  
-> **`Module not found: Can't resolve './src/app/i18n/settings'` داخل `./src/middleware.js (3:1)`**
+> **Build Error: `Can't resolve './src/app/i18n/settings'` داخل `./src/middleware.js`**
 
 #### الإجابة:
-* **سبب الخطأ:** ملف `middleware.js` تم وضعه داخل مجلد `src/`، لذلك كتابة `./src/...` تبحث عن مجلد `src` متكرر وغير موجود.
-* **الحل:** تعديل سطر الاستيراد داخل `src/middleware.js` إلى المسار النسبي الصحيح:
+* **السبب:** الملف موجود بالفعل داخل `src/`، فالمسار النسبي المكتوب يبحث عن `src/src/...`.
+* **الحل:** تعديل مسار الاستيراد إلى:
   ```javascript
   import { fallbackLng, languages } from './app/i18n/settings';
-  ```
-  أو عبر مسار الـ Alias:
-  ```javascript
+  // أو عبر الـ alias:
   import { fallbackLng, languages } from '@/app/i18n/settings';
   ```
 
 ---
 
 ### س9:
-> *(إرسال لقطة شاشة من المتصفح تظهر ظهور النص `meta_title` في الصفحة بدلاً من الترجمة الحقيقية)*
+> **المتصفح يظهر اسم المفتاح `meta_title` بدلاً من النص المترجم**
 
 #### الإجابة:
-ظهور اسم المفتاح مباشرة كـ `meta_title` يعني أن محرك الترجمة فشل في جلب القيمة المقابلة له من ملف الـ JSON، للأسباب التالية:
-1. **عدم تطابق اسم الـ Namespace:** الاستدعاء يطلب `'common'` بينما الملف الفعلي قد يحمل اسماً آخر (مثل `Home.json` أو `default.json`).
-2. **فشل مسار الـ dynamic import:** ملف الـ JSON لا يتم قراءته من المسار الصحيح.
-3. **المفتاح غير موجود** أو غير مكتوب بنفس حالة الأحرف بالضبط في ملف الـ JSON المستهدف.
+يعني أن محرك الترجمة لم يعثر على القيمة للأسباب التالية:
+1. عدم تطابق اسم الـ Namespace المستدعى مع اسم ملف الـ JSON.
+2. خطأ في مسار قراءة الملفات في الباك إند.
+3. المفتاح غير موجود بنفس حالة الأحرف داخل الملف.
 
 ---
 
 ### س10:
-> **`{ "meta_title": "أهلاً بكم في صفحتي الرئيسية" }`**
+> **الملف يحتوي على `{ "meta_title": "أهلاً بكم في صفحتي الرئيسية" }` وما زال لا يترجم على `/en`**
 
 #### الإجابة:
-* إذا كان هذا هو محتوى ملفك، فتأكد أن الرابط المطلوب يطابق اللغة؛ عند فتح `localhost:3000/en`، سيبحث التطبيق داخل ملف الإنجليزية `locales/en/...` وليس ملف العربية.
-* يجب التأكد من تطابق اسم الملف مع اسم الـ Namespace الممرر في دالة `getTranslation(lng, '...')`.
-* تجربة الدخول المباشر إلى `localhost:3000/ar` للتحقق من قراءة القيمة العربية.
+عند فتح `localhost:3000/en`، يبحث المحرك في `public/locales/en/` وليس `ar/`. تأكد من وضع المفتاح المقابل بالإنجليزية في ملف `en`، أو تجربة فتح الرابط المباشر `localhost:3000/ar`.
 
 ---
 
 ### س11:
-> **Build Error**  
-> **`Module not found: Can't resolve './locales/' <dynamic> '/' <dynamic> '.json'`**  
-> **`server relative imports are not implemented yet. Please try an import relative to the file you are importing from.`**
+> **Build Error: `server relative imports are not implemented yet` عند محاولة `import(...)` مسار ديناميكي**
 
 #### الإجابة:
-* **سبب الخطأ:** في Next.js (خاصة مع بيئات البناء الحديثة مثل Turbopack وWebpack Server Targets)، لا يُدعم استيراد المسارات الديناميكية المتغيرة `import(...)` من مجلد `public` مباشرة في السيرفر.
-* **الحل الجذري:** استبدال الـ Dynamic Import بالقراءة المباشرة من نظام الملفات عبر مكتبة `fs` و `path` المدمجتين في Node.js داخل ملف `src/app/i18n/index.js`:
+* **السبب:** بيئة بناء Next.js تمنع استيراد الـ JSON عبر مسارات ديناميكية على السيرفر.
+* **الحل الجذري:** القراءة المباشرة من نظام التشغيل بواسطة `fs.readFileSync` و `path.join`:
   ```javascript
+  // src/app/i18n/index.js
   import { createInstance } from 'i18next';
   import { initReactI18next } from 'react-i18next/initReactI18next';
   import resourcesToBackend from 'i18next-resources-to-backend';
@@ -297,8 +222,7 @@
             language,
             `${namespace}.json`
           );
-          const fileContent = fs.readFileSync(filePath, 'utf-8');
-          return JSON.parse(fileContent);
+          return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
         })
       )
       .init(getOptions(lng, ns));
@@ -307,6 +231,7 @@
 
   export async function getTranslation(lng, ns, options = {}) {
     const i18nextInstance = await initI18next(lng, ns);
+    await i18nextInstance.changeLanguage(lng);
     return {
       t: i18nextInstance.getFixedT(
         lng,
@@ -321,77 +246,113 @@
 ---
 
 ### س12:
-> *(إرسال لقطة شاشة توضح مسار الملفات: الملف اسمه `Home.json` مع وجود خط أحمر على الـ dynamic import في السطر 14)*  
-> **ليه مش شغال؟**
+> **ليه مش شغال رغم إنشاء الملفات؟ (ظهور اسم الملف كـ `Home.json`)**
 
 #### الإجابة:
-المشكلة كانت محددة بوضوح في صورتين:
-1. **اسم الملف الفعلي هو `Home.json` (بحرف H كبير):** بينما كان الكود يستدعي `'common'`.
-   * **الحل:** تعديل الاستدعاء في `page.jsx` إلى:
-     ```jsx
-     const { t } = await getTranslation(lng, 'Home');
-     ```
-2. **السطر 14 (`import(...)`):** به خطأ استيراد نسبي، ويجب تبديله فوراً بحل `fs.readFileSync` المذكور أعلاه لتجاوز قيود Next.js.
-3. تعديل `defaultNS` في `src/app/i18n/settings.js` إلى `'Home'`.
+1. اسم الملف كان بحرف كبير `Home.json`، بينما الكود يستدعي `'common'`. تم تعديل الاستدعاء إلى:
+   ```javascript
+   const { t } = await getTranslation(lng, 'Home');
+   ```
+2. استبدال الـ dynamic import بحل `fs.readFileSync` لحل مشكلة السيرفر.
 
 ---
 
 ### س13:
-> *(إرسال لقطة شاشة تظهر فتح الرابط `localhost:3000/ar` لكن النص يظهر بالإنجليزية `Welcome to my home page`)*  
-> **مش بتتغير للعربي**
+> **النص مش بيتغير للعربي على الرابط `/ar` ويفضل ثابت إنجليزي**
 
 #### الإجابة:
-السبب وراء ثبات اللغة على الإنجليزية يعود لنقطتين رئيسيتين:
-1. **`params` أصبحت Promise في إصدارات Next.js الحديثة (Next.js 15+):**  
-   عدم عمل `await` لـ `params` جعل قيمة `lng` دائماً `undefined`، وبالتالي كان المحرك يعود للغة الافتراضية (English fallback).
-2. **مثيل الترجمة يحتاج لـ `changeLanguage` صراحة بالسيرفر.**
-
-**الحل المطبق:**
-* في `src/app/[lng]/page.jsx`:
-  ```jsx
-  import { getTranslation } from '../i18n';
-  import Link from 'next/link';
-
-  export default async function HomePage({ params }) {
-    // فك الـ Promise لضمان استخراج كود اللغة
-    const resolvedParams = await params;
-    const lng = resolvedParams?.lng;
-
-    const { t } = await getTranslation(lng, 'Home');
-
-    return (
-      <main style={{ padding: '2rem' }}>
-        <h1>{t('meta_title')}</h1>
-
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
-          <Link href="/ar">العربية</Link>
-          <Link href="/en">English</Link>
-        </div>
-      </main>
-    );
-  }
-  ```
-* في `src/app/i18n/index.js`، إضافة سطر تأكيد اللغة:
-  ```javascript
-  export async function getTranslation(lng, ns, options = {}) {
-    const i18nextInstance = await initI18next(lng, ns);
-    await i18nextInstance.changeLanguage(lng); // تأكيد ضبط اللغة للطلب الحالي
-
-    return {
-      t: i18nextInstance.getFixedT(
-        lng,
-        Array.isArray(ns) ? ns[0] : ns,
-        options.keyPrefix
-      ),
-      i18n: i18nextInstance,
-    };
-  }
-  ```
+1. في **Next.js 15+** أصبحت الـ `params` عبارة عن **Promise**، وكان يجب عمل `await` لها:
+   ```javascript
+   const resolvedParams = await params;
+   const lng = resolvedParams?.lng;
+   ```
+2. إضافة سطر تأكيد تغيير لغة الـ instance في الخادم:
+   ```javascript
+   await i18nextInstance.changeLanguage(lng);
+   ```
 
 ---
 
 ### س14:
-> **اشتغلت، حطلي كل المعلومات والمشاكل الي حصلت معايا وكل الشات في ملف md**
+> **شرح تفصيلي لدالة تبديل اللغة:**
+> ```javascript
+> const switchLanguage = () => {
+>   const segments = pathname.split('/');
+>   segments[1] = targetLng;
+>   const newPath = segments.join('/') || `/${targetLng}`;
+>   router.push(newPath);
+> };
+> ```
 
-#### النتيجة:
-تم توثيق كل خطوة والمفاهيم التقنية وحلول الأخطاء بالكامل بصيغة سؤال وجواب مفصلة لتكون دليلاً تقنياً ومرجعاً شاملاً للمشروع.
+#### الإجابة:
+وظيفتها تبديل اللغة مع الحفاظ على الصفحة الحالية للزائر:
+1. `pathname.split('/')`: تقسيم الرابط مثل `/ar/services` إلى مصفوفة: `['', 'ar', 'services']`.
+2. `segments[1] = targetLng`: استبدال كود اللغة القديم بالجديد (مثلاً تحويل `ar` إلى `en`).
+3. `segments.join('/')`: إعادة دمج عناصر المصفوفة بسلاش لتصبح المسار الجديد: `/en/services`.
+4. `router.push(newPath)`: توجيه العميل للصفحة دون إعادة تحميل كاملة للموقع (Client-side Navigation).
+
+---
+
+### س15:
+> **ازاي استخدم `t()` داخل مكونات العميل `"use client"` (مثل الـ Navbar)؟**
+
+#### الإجابة:
+مكونات العميل لا يمكنها قراءة الملفات عبر `fs`، بل تعتمد على عميل `react-i18next`.
+
+1. **إنشاء ملف إعداد العميل `src/app/i18n/client.js`:**
+   ```javascript
+   'use client';
+   import i18next from 'i18next';
+   import { initReactI18next, useTranslation as useTranslationOrg } from 'react-i18next';
+   import resourcesToBackend from 'i18next-resources-to-backend';
+   import { getOptions } from './settings';
+   import { useParams } from 'next/navigation';
+   import { useEffect } from 'react';
+
+   i18next
+     .use(initReactI18next)
+     .use(
+       resourcesToBackend(
+         (language, namespace) => import(`../../../public/locales/${language}/${namespace}.json`)
+       )
+     )
+     .init({
+       ...getOptions(),
+       lng: undefined,
+       detection: {
+         order: ['path', 'htmlTag', 'cookie', 'navigator'],
+       },
+     });
+
+   export function useTranslation(ns, options = {}) {
+     const params = useParams();
+     const lng = params?.lng || 'en';
+     const ret = useTranslationOrg(ns, options);
+     const { i18n } = ret;
+
+     useEffect(() => {
+       if (i18n.resolvedLanguage !== lng) {
+         i18n.changeLanguage(lng);
+       }
+     }, [lng, i18n]);
+
+     return ret;
+   }
+   ```
+
+2. **الاستدعاء داخل مكون `Navbar.jsx`:**
+   ```jsx
+   "use client";
+   import { useTranslation } from '@/app/i18n/client';
+
+   export default function Navbar() {
+     const { t } = useTranslation('Home');
+
+     return (
+       <header>
+         <span>{t('brand_name')}</span>
+         <button>{t('book_now')}</button>
+       </header>
+     );
+   }
+   ```
